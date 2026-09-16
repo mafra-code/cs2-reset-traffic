@@ -7,3 +7,4 @@
 *.pdb binary
 *.so binary
 *.bundle binary
+*.png binary

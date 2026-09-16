@@ -2,7 +2,7 @@
 
 **Alpha** (`1.0.0-alpha`). A Cities: Skylines II mod with one Options button that removes **moving** vehicles so traffic can respawn from demand.
 
-Official `IMod` (no Harmony, no BepInEx). MIT licensed.
+Official `IMod` (no Harmony, no BepInEx). MIT licensed. Source: [github.com/mafra-code/cs2-reset-traffic](https://github.com/mafra-code/cs2-reset-traffic).
 
 ## Usage
 
@@ -24,11 +24,23 @@ Progress is written to:
 
 ## Install
 
-Build from source (below). A Release build copies the mod to:
+Subscribe on [Paradox Mods](https://mods.paradoxplaza.com/mods/159366/Windows), or build from source (below). A Release build copies the mod to:
 
 `%USERPROFILE%\AppData\LocalLow\Colossal Order\Cities Skylines II\Mods\ResetTraffic`
 
 Skyve and the game load that local Mods folder automatically. **Close the game before building** — otherwise the DLL is locked.
+
+## Publish (Paradox Mods)
+
+Requires the in-game **Modding toolchain**, a Paradox account already logged in through Cities: Skylines II or Skyve, and `ResetTraffic/Properties/PublishConfiguration.xml` (`ModId` **159366**). **Close the game first.**
+
+First upload is done. Later code updates: bump `Version` / `ModVersion` / changelog, then:
+
+```bash
+dotnet publish ResetTraffic/ResetTraffic.csproj -c Release -p:PublishProfile=NewVersion
+```
+
+Listing text / thumbnail only (no rebuild of the package): `-p:PublishProfile=Update`.
 
 ## Build
 

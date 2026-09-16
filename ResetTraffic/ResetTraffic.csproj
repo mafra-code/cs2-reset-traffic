@@ -68,6 +68,13 @@
   <ItemGroup>
     <None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
     <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
+    <None Include="Properties\PublishConfiguration.xml" />
+    <None Include="Properties\Thumbnail.png" />
   </ItemGroup>
 
+  <Target Name="CopyLicense" AfterTargets="DeployWIP">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\LICENSE" DestinationFiles="$(DeployDir)\LICENSE" />
+  </Target>
+
 </Project>
+
