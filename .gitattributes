@@ -1,0 +1,9 @@
+* text=auto
+
+*.cs text diff=csharp
+*.sln merge=union
+
+*.dll binary
+*.pdb binary
+*.so binary
+*.bundle binary

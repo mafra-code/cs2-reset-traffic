@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <Configurations>Debug;Release</Configurations>
+    <LangVersion>9</LangVersion>
+    <Version>1.0.0-alpha</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0-alpha</InformationalVersion>
+    <RootNamespace>ResetTraffic</RootNamespace>
+    <Title>Reset Traffic</Title>
+    <Authors>MafraCode</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>Alpha. One-button city-wide vehicle reset so traffic can respawn.</Description>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+
+  <!-- Official CS2 IMod imports -->
+  <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
+  <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
+
+  <ItemGroup>
+    <Reference Include="Game">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.Core">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.Logging">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.IO.AssetDatabase">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.Localization">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Burst">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Collections">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Entities">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Mathematics">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="System">
+      <Private>false</Private>
+    </Reference>
+    <Reference Update="System.Core">
+      <Private>false</Private>
+    </Reference>
+    <Reference Update="System.Data">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
+    <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
+  </ItemGroup>
+
+</Project>
