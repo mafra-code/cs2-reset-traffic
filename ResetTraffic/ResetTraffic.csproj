@@ -16,7 +16,7 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
-  <!-- Official CS2 IMod imports -->
+  <!-- Official CS2 IMod imports. CSII_TOOLPATH is the User env var set by the in-game Modding toolchain. Close the game before a Release build or the deployed DLL is locked. -->
   <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
   <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
 

@@ -12,13 +12,26 @@ namespace ResetTraffic
     using Unity.Collections;
     using Unity.Entities;
 
+    /// <summary>
+    /// One-shot city-wide despawn: snapshot matching entities, then tag that list with
+    /// <see cref="Deleted"/> through <see cref="ToolOutputBarrier"/>.
+    /// </summary>
+    /// <remarks>
+    /// Hard-won constraints (native UNKNOWN crash / infinite remaining count):
+    /// <list type="bullet">
+    /// <item>Never <c>EntityManager.AddComponent&lt;Deleted&gt;</c> this frame — deferred ECB only.</item>
+    /// <item>Snapshot once; do not keep deleting live queries (respawns never drain).</item>
+    /// <item>Skip <see cref="Unspawned"/> (spawn-pending bounce) and <see cref="Temp"/> (tool ghosts).</item>
+    /// <item>Do not tag while paused (<c>selectedSpeed &lt;= 0</c>) or while Options is open (<c>IsGame</c> is false).</item>
+    /// <item>Pace with Unity render frames; simulation ticks stall at speed 0.</item>
+    /// </list>
+    /// Extra clicks while a run is in progress are ignored. Leaving the city clears via OnDestroy.
+    /// </remarks>
     // Run just before ToolOutputBarrier so Deleted tags land in that frame's tool ECB.
     [UpdateBefore(typeof(ToolOutputBarrier))]
     public partial class ResetTrafficSystem : GameSystemBase
     {
-        // One-shot reset: snapshot matching entities once, then walk that list.
-        // Newly spawned traffic is ignored. Extra clicks while running are ignored.
-
+        // Info-log cadence during a run. Verbose [DEBUG] lines are gated separately by EnableDebugging.
         private const int LogEvery = 256;
 
         private EntityQuery m_MovingCars;
@@ -33,10 +46,14 @@ namespace ResetTraffic
         private EntityQuery m_ParkedTrains;
         private EntityQuery m_ParkedOther;
         private ToolOutputBarrier m_Barrier;
+        // Walked once per run. Persistent because the system lives across many frames.
         private NativeList<Entity> m_Snapshot;
+        // Next index to consider; advanced even when the entity is already gone so Remaining can hit 0.
         private int m_SnapshotIndex;
         private bool m_SnapshotReady;
+        // True from RequestReset until Finish. Extra button/hotkey presses are ignored while set.
         private bool m_Requested;
+        // One Info line when waiting for speed > 0; the wait itself can last many frames.
         private bool m_LoggedWait;
         private int m_SessionCount;
         private int m_LastLoggedCount;
@@ -60,6 +77,11 @@ namespace ResetTraffic
 
         internal static int RemovedCount { get; private set; }
 
+        /// <summary>
+        /// Queue a reset. Shared by the Options button and the hotkey. Safe to call before the
+        /// system's first ToolUpdate (creates the system if needed). No-ops if already running,
+        /// not in a city, or no types are checked.
+        /// </summary>
         public static void RequestReset()
         {
             World world = World.DefaultGameObjectInjectionWorld;
@@ -114,6 +136,7 @@ namespace ResetTraffic
         {
             base.OnCreate();
             m_Barrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
+            // 4096 is a starting capacity only; NativeList grows. Persistent: disposed in OnDestroy.
             m_Snapshot = new NativeList<Entity>(4096, Allocator.Persistent);
             // Deleted = already going away. Temp = preview/ghost. Unspawned = spawn-pending
             // (tagging those keeps them in a bounce loop). InterpolatedTransform ≈ currently moving.
@@ -295,6 +318,7 @@ namespace ResetTraffic
             }
 
             m_LastProcessedFrame = frame;
+            // Jobs may have despawned snapshot entities since the last batch; sync before Exists checks.
             EntityManager.CompleteAllTrackedJobs();
 
             m_DebugSkipNull = 0;
@@ -383,6 +407,8 @@ namespace ResetTraffic
             DebugLog($"query {name} live={query.CalculateEntityCount()} added={added} dupesOrNull={dupes}");
         }
 
+        // Tag up to `budget` still-existing snapshot entities. Always advance the index so
+        // already-gone entities still count down Remaining to 0.
         private int TagSnapshotBatch(EntityCommandBuffer commandBuffer, int budget, bool debugging)
         {
             int tagged = 0;
@@ -435,6 +461,7 @@ namespace ResetTraffic
             return tagged;
         }
 
+        // Clears the run flags but keeps the last counts for Options until the next RequestReset.
         private void Finish(string message, bool warn = false)
         {
             DebugLog($"Finish begin: '{message}' requested={m_Requested} snapshotReady={m_SnapshotReady} index={m_SnapshotIndex}/{SnapshotLength} session={m_SessionCount} IsActive={IsActive}");
@@ -464,6 +491,7 @@ namespace ResetTraffic
             DebugLog($"Finish end: IsActive={IsActive} UiVersion={UiVersion} ProgressText='{ProgressText}'");
         }
 
+        // Static so Options can read progress without a system instance. BumpUi invalidates dummy rows.
         private static void PublishState(string text, int remaining, int snapshot, int removed)
         {
             ProgressText = text;
@@ -499,6 +527,7 @@ namespace ResetTraffic
                 return;
             }
 
+            // InputManager only delivers the action while enabled; keep it off in menus/Options.
             action.shouldBeEnabled = Setting.IsInGame();
             bool performed = action.WasPerformedThisFrame();
             if (settings.EnableDebugging && performed)
@@ -558,6 +587,7 @@ namespace ResetTraffic
             return $"Index={entity.Index} Version={entity.Version}";
         }
 
+        // Compact type dump for debug logs — not shown in Options.
         private static string DescribeTypes(Setting settings)
         {
             if (settings == null)

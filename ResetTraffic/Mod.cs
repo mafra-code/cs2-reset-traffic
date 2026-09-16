@@ -6,12 +6,22 @@ namespace ResetTraffic
     using Game.Modding;
     using Game.SceneFlow;
 
+    /// <summary>
+    /// Official CS2 <see cref="IMod"/> entry (no Harmony). Wires Options, locales, persisted
+    /// settings, and <see cref="ResetTrafficSystem"/> into ToolUpdate so Deleted tags share
+    /// that frame's tool ECB.
+    /// </summary>
     public class Mod : IMod
     {
         public const string Id = "ResetTraffic";
 
+        /// <summary>
+        /// Live mod instance. Options and the system reach logger/settings through this;
+        /// cleared in <see cref="OnDispose"/> so a leftover reference cannot outlive unload.
+        /// </summary>
         public static Mod Instance { get; private set; }
 
+        /// <summary>Writes <c>Mods_ResetTraffic.log</c> under the game's Logs folder.</summary>
         internal ILog Logger { get; private set; }
 
         internal Setting Settings { get; private set; }
@@ -19,6 +29,7 @@ namespace ResetTraffic
         public void OnLoad(UpdateSystem updateSystem)
         {
             Instance = this;
+            // Keep errors in the log only; flashing them in the HUD during a mass despawn is noisy.
             Logger = LogManager.GetLogger("Mods_ResetTraffic").SetShowsErrorsInUI(false);
             Logger.Info(nameof(OnLoad));
 

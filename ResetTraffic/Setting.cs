@@ -8,6 +8,11 @@ namespace ResetTraffic
     using Game.Tools;
     using Unity.Entities;
 
+    /// <summary>
+    /// Options page: type filters, pace, hotkey, and a live Idle/Running status panel.
+    /// Status rows are dummy bound properties; <see cref="GetUiVersion"/> forces Options to
+    /// redraw when the system publishes progress.
+    /// </summary>
     // Saved as Mods_ResetTraffic.coc under the game's ModsSettings folder.
     [FileLocation("Mods_ResetTraffic")]
     [SettingsUIPageWarning(typeof(Setting), nameof(IsRunning))]
@@ -35,6 +40,10 @@ namespace ResetTraffic
         {
         }
 
+        /// <summary>
+        /// Options button. The UI only invokes the setter; the getter is unused.
+        /// Disabled on the main menu and while a reset is already running.
+        /// </summary>
         [SettingsUISection(kSection, kActionGroup)]
         [SettingsUIButton]
         [SettingsUIConfirmation]
@@ -108,6 +117,7 @@ namespace ResetTraffic
             set { }
         }
 
+        // Moving: InterpolatedTransform present. On by default except pedestrians.
         [SettingsUISection(kSection, kMovingGroup)]
         public bool RemoveMovingCars { get; set; }
 
@@ -129,6 +139,7 @@ namespace ResetTraffic
         [SettingsUISection(kSection, kMovingGroup)]
         public bool RemovePedestrians { get; set; }
 
+        // Parked: off by default. Parked cars include garage/depot/service fleets, not only curbs.
         [SettingsUISection(kSection, kParkedGroup)]
         public bool RemoveParkedCars { get; set; }
 
@@ -141,10 +152,12 @@ namespace ResetTraffic
         [SettingsUISection(kSection, kParkedGroup)]
         public bool RemoveParkedOther { get; set; }
 
+        /// <summary>How many snapshot entities to tag Deleted each accepted Unity render frame.</summary>
         [SettingsUISection(kSection, kPaceGroup)]
         [SettingsUISlider(min = MinVehiclesPerFrame, max = MaxVehiclesPerFrame, step = 1, scalarMultiplier = 1)]
         public int VehiclesPerFrame { get; set; }
 
+        /// <summary>Extra display frames to skip after each batch. 0 = every frame. Simulation ticks stall while paused, so this uses Unity frames.</summary>
         [SettingsUISection(kSection, kPaceGroup)]
         [SettingsUISlider(min = MinFrameInterval, max = MaxFrameInterval, step = 1, scalarMultiplier = 1)]
         public int FrameInterval { get; set; }
@@ -164,6 +177,7 @@ namespace ResetTraffic
             }
         }
 
+        /// <summary>Verbose <c>[DEBUG]</c> lines in the mod log. Hits FPS; leave off unless diagnosing a run.</summary>
         [SettingsUISection(kSection, kDebugGroup)]
         [SettingsUISetter(typeof(Setting), nameof(OnDebuggingChanged))]
         public bool EnableDebugging { get; set; }
@@ -176,8 +190,10 @@ namespace ResetTraffic
 
         public bool DisableResetButton => IsNotInGame || ResetTrafficSystem.IsActive;
 
+        /// <summary>Always true so dummy status rows cannot be toggled like real checkboxes.</summary>
         public bool AlwaysDisabled => true;
 
+        /// <summary>Incremented by the system after each progress publish so Options rebinds the dummy rows.</summary>
         public int GetUiVersion()
         {
             return ResetTrafficSystem.UiVersion;
@@ -224,6 +240,7 @@ namespace ResetTraffic
                 || RemoveParkedOther;
         }
 
+        // Clamp because Mods_ResetTraffic.coc can be edited by hand outside the slider range.
         internal int ClampedVehiclesPerFrame()
         {
             int value = VehiclesPerFrame;

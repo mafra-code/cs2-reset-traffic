@@ -3,6 +3,10 @@ namespace ResetTraffic
     using System.Collections.Generic;
     using Colossal;
 
+    /// <summary>
+    /// German Options strings. Keys match <see cref="LocaleEN"/> so both languages bind to the
+    /// same <see cref="Setting"/> properties.
+    /// </summary>
     public class LocaleDE : IDictionarySource
     {
         private readonly Setting m_Setting;
@@ -77,6 +81,7 @@ namespace ResetTraffic
 
         public void Unload()
         {
+            // IDictionarySource requires Unload; Colossal keeps the source for the session.
         }
     }
 }

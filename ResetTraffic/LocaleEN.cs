@@ -3,6 +3,10 @@ namespace ResetTraffic
     using System.Collections.Generic;
     using Colossal;
 
+    /// <summary>
+    /// English Options strings. Keys are built from <see cref="Setting"/> locale IDs so labels
+    /// stay bound if a property is renamed.
+    /// </summary>
     public class LocaleEN : IDictionarySource
     {
         private readonly Setting m_Setting;
@@ -77,6 +81,7 @@ namespace ResetTraffic
 
         public void Unload()
         {
+            // IDictionarySource requires Unload; Colossal keeps the source for the session.
         }
     }
 }
