@@ -14,6 +14,7 @@
   <GameVersion Value="1.6.*" />
   <Dependency Id="" DisplayName="" Version="" />
   <ChangeLog Value="1.0.0-alpha — First public release. One-shot snapshot despawn for selected moving/parked types. Options progress (Idle/Running, Remaining). Default hotkey F9. Tested on Cities: Skylines II 1.6.2f1." />
+  <ExternalLink Type="discord" Url="https://discord.gg/84UxmTGZm" />
   <ExternalLink Type="github" Url="https://github.com/mafra-code/cs2-reset-traffic" />
   <AccessLevel Value="Public" />
 </Publish>
