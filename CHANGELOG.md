@@ -3,11 +3,11 @@
 All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
-Versions use `major.minor.patch-alpha`. Newest first.
+Versions use `major.minor.patch-alpha|beta`. Newest first.
 
-## [Unreleased] — 1.1.1-alpha
+## [1.0.0-beta] - 2026-09-18
 
-Working tree on `main`. Not tagged. Paradox Mods listing is still **1.0.0-alpha**.
+Player-facing first beta. Folds unpublished 1.1.x-alpha git history (`0911078` 1.1.1-alpha, `57b725a` 1.1.0-alpha) into this listing version. Paradox Mods listing is still **1.0.0-alpha** until NewVersion.
 
 ### Added
 
@@ -18,10 +18,11 @@ Working tree on `main`. Not tagged. Paradox Mods listing is still **1.0.0-alpha*
 - Parked cars and bicycles are **on by default** (includes garage/depot/service fleets, not only street parking). Parked trains and other parked stay off.
 - **Reset to defaults** sits in its own Options group **before Moving**, so a header separates it from the type filters. Still does not change the hotkey.
 - Options **Status** line (idle/running, remaining / removed / snapshot) replaces the dummy Idle checkbox, which did not show in Options. Re-open the page if the line is stale.
+- Paradox listing screenshots: keep before-jam and after-clear; replace the old Options shot with two new Options pages (top and bottom, 2026-09-18). Options title is **Reset Traffic (Beta)**.
 
 ## [1.1.0-alpha] - 2026-09-18
 
-Git `57b725a`. Tag `v1.1.0-alpha`.
+Git `57b725a`. Tag `v1.1.0-alpha`. Git-only history; never published to Paradox Mods. Folded into **1.0.0-beta**.
 
 ### Added
 

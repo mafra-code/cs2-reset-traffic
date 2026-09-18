@@ -19,7 +19,7 @@ namespace ResetTraffic
         {
             return new Dictionary<string, string>
             {
-                { m_Setting.GetSettingsLocaleID(), "Reset Traffic (Alpha)" },
+                { m_Setting.GetSettingsLocaleID(), "Reset Traffic (Beta)" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetVehicles)), "선택 항목 초기화" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetVehicles)), "한 번만: 지금 존재하는 선택된 유형을 제거합니다. 새로 생성된 교통은 그대로 둡니다. 옵션을 닫은 다음 속도를 1로 설정하세요." },
                 { m_Setting.GetOptionWarningLocaleID(nameof(Setting.ResetVehicles)), "지금 존재하는 선택된 차량과 보행자를 초기화할까요? 새로 생성된 교통은 제거되지 않습니다. 옵션을 닫은 다음 속도를 1로 설정하세요." },

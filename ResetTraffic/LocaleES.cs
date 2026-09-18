@@ -19,7 +19,7 @@ namespace ResetTraffic
         {
             return new Dictionary<string, string>
             {
-                { m_Setting.GetSettingsLocaleID(), "Reset Traffic (Alpha)" },
+                { m_Setting.GetSettingsLocaleID(), "Reset Traffic (Beta)" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetVehicles)), "Restablecer selección" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetVehicles)), "Una vez: elimina los tipos marcados que existen ahora. El tráfico recién generado no se toca. Cierra Opciones y pon la velocidad en 1." },
                 { m_Setting.GetOptionWarningLocaleID(nameof(Setting.ResetVehicles)), "¿Restablecer los vehículos y peatones marcados que existen ahora? El tráfico recién generado no se eliminará. Cierra Opciones y pon la velocidad en 1." },

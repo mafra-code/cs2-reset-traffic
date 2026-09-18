@@ -4,15 +4,15 @@
     <OutputType>Library</OutputType>
     <Configurations>Debug;Release</Configurations>
     <LangVersion>9</LangVersion>
-    <Version>1.1.1-alpha</Version>
-    <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <FileVersion>1.1.1.0</FileVersion>
-    <InformationalVersion>1.1.1-alpha</InformationalVersion>
+    <Version>1.0.0-beta</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0-beta</InformationalVersion>
     <RootNamespace>ResetTraffic</RootNamespace>
     <Title>Reset Traffic</Title>
     <Authors>MafraCode</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Description>Alpha. One-button city-wide vehicle reset so traffic can respawn.</Description>
+    <Description>Beta. One-button city-wide vehicle reset so traffic can respawn.</Description>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 

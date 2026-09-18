@@ -1,6 +1,6 @@
 # Reset Traffic
 
-**Alpha** (`1.1.1-alpha`). A Cities: Skylines II mod with one Options button that removes **moving** vehicles so traffic can respawn from demand.
+**Beta** (`1.0.0-beta`). A Cities: Skylines II mod with one Options button that removes **moving** vehicles so traffic can respawn from demand.
 
 Official `IMod` (no Harmony, no BepInEx). MIT licensed. Source: [github.com/mafra-code/cs2-reset-traffic](https://github.com/mafra-code/cs2-reset-traffic). History: [CHANGELOG.md](CHANGELOG.md).
 
