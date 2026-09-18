@@ -1,8 +1,8 @@
 # Reset Traffic
 
-**Alpha** (`1.1.0-alpha`). A Cities: Skylines II mod with one Options button that removes **moving** vehicles so traffic can respawn from demand.
+**Alpha** (`1.1.1-alpha`). A Cities: Skylines II mod with one Options button that removes **moving** vehicles so traffic can respawn from demand.
 
-Official `IMod` (no Harmony, no BepInEx). MIT licensed. Source: [github.com/mafra-code/cs2-reset-traffic](https://github.com/mafra-code/cs2-reset-traffic).
+Official `IMod` (no Harmony, no BepInEx). MIT licensed. Source: [github.com/mafra-code/cs2-reset-traffic](https://github.com/mafra-code/cs2-reset-traffic). History: [CHANGELOG.md](CHANGELOG.md).
 
 ## Usage
 
@@ -10,17 +10,21 @@ Official `IMod` (no Harmony, no BepInEx). MIT licensed. Source: [github.com/mafr
 2. ESC → **Options** → **Reset Traffic** → **Reset vehicles**.
 3. Confirm, **close Options**, then set game speed to **1**. Vehicles despawn over several seconds while time is running. The reset is a **one-shot snapshot** of entities that exist at that moment; anything that spawns afterwards is left alone. Extra button or hotkey presses while a reset is running are ignored.
 
-The Options page shows **Idle** or **Running**, plus **Remaining** / **Removed** / **Snapshot** counts. **Debugging** writes verbose lines to `Mods_ResetTraffic.log` and will hitch; leave it off unless you need those logs.
+The Options page shows a **Status** line (idle/running, remaining / removed / snapshot). When a run finishes, a dialog shows the same counts. **Debugging** writes verbose lines to `Mods_ResetTraffic.log` and will hitch; leave it off unless you need those logs.
 
 You can also use a **hotkey** (default **F9**). **Entities per frame** (1–64, default 20) and **Extra frames between batches** (0–30, default 0) control how fast things disappear.
 
 **Moving vehicles and pedestrians:** cars, bicycles, trains, public transport, trucks/service, aircraft/watercraft (on by default), pedestrians (off).
 
-**Parked:** parked cars, bicycles, trains, and other parked vehicles (all off by default). Parked cars include garage/depot fleets (fire, buses, …), not only street parking.
+**Parked:** parked cars and bicycles (on by default), trains and other parked vehicles (off). Parked cars include garage/depot fleets (fire, buses, …), not only street parking.
 
 Progress is written to:
 
 `%USERPROFILE%\AppData\LocalLow\Colossal Order\Cities Skylines II\Logs\Mods_ResetTraffic.log`
+
+## Languages
+
+Options UI covers every language Cities: Skylines II ships: **English** (`en-US`) and **German** (`de-DE`) are human translations. The rest are **AI-generated**: Spanish (`es-ES`), French (`fr-FR`), Italian (`it-IT`), Japanese (`ja-JP`), Korean (`ko-KR`), Polish (`pl-PL`), Portuguese Brazil (`pt-BR`), Russian (`ru-RU`), Chinese Simplified (`zh-HANS`), Chinese Traditional (`zh-HANT`).
 
 ## Install
 
@@ -62,7 +66,9 @@ ResetTraffic.sln
 ResetTraffic/
   Mod.cs                 # IMod entry, Options registration
   Setting.cs             # Reset vehicles button
-  LocaleEN.cs / LocaleDE.cs
+  LocaleEN.cs / LocaleDE.cs  # human Options strings
+  LocaleES.cs LocaleFR.cs LocaleIT.cs LocaleJA.cs LocaleKO.cs
+  LocalePL.cs LocalePT.cs LocaleRU.cs LocaleZHHans.cs LocaleZHHant.cs  # AI-generated
   Systems/ResetTrafficSystem.cs
 ```
 

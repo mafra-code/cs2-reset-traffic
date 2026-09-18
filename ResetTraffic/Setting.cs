@@ -9,15 +9,14 @@ namespace ResetTraffic
     using Unity.Entities;
 
     /// <summary>
-    /// Options page: type filters, pace, hotkey, and a live Idle/Running status panel.
-    /// Status rows are dummy bound properties; <see cref="GetUiVersion"/> forces Options to
-    /// redraw when the system publishes progress.
+    /// Options page: type filters, pace, hotkey, and a Status line (remaining / removed / snapshot).
+    /// <see cref="GetUiVersion"/> forces Options to rebind that line when the system publishes progress.
     /// </summary>
     // Saved as Mods_ResetTraffic.coc under the game's ModsSettings folder.
     [FileLocation("Mods_ResetTraffic")]
     [SettingsUIPageWarning(typeof(Setting), nameof(IsRunning))]
-    [SettingsUIGroupOrder(kActionGroup, kMovingGroup, kParkedGroup, kPaceGroup, kKeybindingGroup, kDebugGroup, kDefaultsGroup)]
-    [SettingsUIShowGroupName(kActionGroup, kMovingGroup, kParkedGroup, kPaceGroup, kKeybindingGroup, kDebugGroup, kDefaultsGroup)]
+    [SettingsUIGroupOrder(kActionGroup, kDefaultsGroup, kMovingGroup, kParkedGroup, kPaceGroup, kKeybindingGroup, kDebugGroup)]
+    [SettingsUIShowGroupName(kActionGroup, kDefaultsGroup, kMovingGroup, kParkedGroup, kPaceGroup, kKeybindingGroup, kDebugGroup)]
     public class Setting : ModSetting
     {
         public const string kSection = "Main";
@@ -57,65 +56,37 @@ namespace ResetTraffic
             }
         }
 
-        // Dummy rows: AlwaysDisabled makes them read-only. ValueVersion + BumpUi
-        // forces Options to redraw Idle/Running/counts. HideByCondition swaps Idle vs Running.
+        /// <summary>
+        /// Live run status. A plain string (not MultilineText, not disabled) so Options
+        /// actually shows the getter value: remaining / removed / snapshot.
+        /// </summary>
         [SettingsUISection(kSection, kActionGroup)]
-        [SettingsUIHideByCondition(typeof(Setting), nameof(IsRunning))]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(AlwaysDisabled))]
-        [SettingsUIValueVersion(typeof(Setting), nameof(GetUiVersion))]
-        public bool IdleIndicator
-        {
-            get { return true; }
-            set { }
-        }
-
-        [SettingsUISection(kSection, kActionGroup)]
-        [SettingsUIHideByCondition(typeof(Setting), nameof(IsIdle))]
         [SettingsUIWarning(typeof(Setting), nameof(IsRunning))]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(AlwaysDisabled))]
         [SettingsUIValueVersion(typeof(Setting), nameof(GetUiVersion))]
-        public bool RunningIndicator
-        {
-            get { return true; }
-            set { }
-        }
+        public string ProgressText => ResetTrafficSystem.FormatStatus();
 
-        [SettingsUISection(kSection, kActionGroup)]
-        [SettingsUIMultilineText]
-        [SettingsUIWarning(typeof(Setting), nameof(IsRunning))]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(AlwaysDisabled))]
-        [SettingsUIValueVersion(typeof(Setting), nameof(GetUiVersion))]
-        public string ProgressText
+        /// <summary>
+        /// Options button. Restores filters, pace sliders, and debugging.
+        /// Does not change the hotkey or queue a traffic reset.
+        /// Sits in its own group so a header separates it from the type filters below.
+        /// </summary>
+        [SettingsUISection(kSection, kDefaultsGroup)]
+        [SettingsUIButton]
+        [SettingsUIConfirmation]
+        public bool ResetModSettings
         {
-            get { return ResetTrafficSystem.ProgressText; }
-            set { }
-        }
+            set
+            {
+                bool wasDebugging = EnableDebugging;
+                SetDefaults();
+                ApplyAndSave();
+                if (wasDebugging)
+                {
+                    OnDebuggingChanged(false);
+                }
 
-        [SettingsUISection(kSection, kActionGroup)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(AlwaysDisabled))]
-        [SettingsUIValueVersion(typeof(Setting), nameof(GetUiVersion))]
-        public int RemainingCount
-        {
-            get { return ResetTrafficSystem.RemainingCount; }
-            set { }
-        }
-
-        [SettingsUISection(kSection, kActionGroup)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(AlwaysDisabled))]
-        [SettingsUIValueVersion(typeof(Setting), nameof(GetUiVersion))]
-        public int RemovedCount
-        {
-            get { return ResetTrafficSystem.RemovedCount; }
-            set { }
-        }
-
-        [SettingsUISection(kSection, kActionGroup)]
-        [SettingsUIDisableByCondition(typeof(Setting), nameof(AlwaysDisabled))]
-        [SettingsUIValueVersion(typeof(Setting), nameof(GetUiVersion))]
-        public int SnapshotTotal
-        {
-            get { return ResetTrafficSystem.SnapshotTotal; }
-            set { }
+                Mod.Instance?.Logger?.Info("Options restored to defaults.");
+            }
         }
 
         // Moving: InterpolatedTransform present. On by default except pedestrians.
@@ -140,7 +111,7 @@ namespace ResetTraffic
         [SettingsUISection(kSection, kMovingGroup)]
         public bool RemovePedestrians { get; set; }
 
-        // Parked: off by default. Parked cars include garage/depot/service fleets, not only curbs.
+        // Parked cars/bicycles on by default (includes garage/depot/service fleets, not only curbs). Trains and other parked stay off.
         [SettingsUISection(kSection, kParkedGroup)]
         public bool RemoveParkedCars { get; set; }
 
@@ -183,41 +154,13 @@ namespace ResetTraffic
         [SettingsUISetter(typeof(Setting), nameof(OnDebuggingChanged))]
         public bool EnableDebugging { get; set; }
 
-        /// <summary>
-        /// Options button. Restores filters, pace sliders, and debugging.
-        /// Does not change the hotkey or queue a traffic reset.
-        /// </summary>
-        [SettingsUISection(kSection, kDefaultsGroup)]
-        [SettingsUIButton]
-        [SettingsUIConfirmation]
-        public bool ResetModSettings
-        {
-            set
-            {
-                bool wasDebugging = EnableDebugging;
-                SetDefaults();
-                ApplyAndSave();
-                if (wasDebugging)
-                {
-                    OnDebuggingChanged(false);
-                }
-
-                Mod.Instance?.Logger?.Info("Options restored to defaults.");
-            }
-        }
-
         public bool IsNotInGame => !IsInGame();
 
         public bool IsRunning => ResetTrafficSystem.IsActive;
 
-        public bool IsIdle => !ResetTrafficSystem.IsActive;
-
         public bool DisableResetButton => IsNotInGame || ResetTrafficSystem.IsActive;
 
-        /// <summary>Always true so dummy status rows cannot be toggled like real checkboxes.</summary>
-        public bool AlwaysDisabled => true;
-
-        /// <summary>Incremented by the system after each progress publish so Options rebinds the dummy rows.</summary>
+        /// <summary>Incremented by the system after each progress publish so Options rebinds Status.</summary>
         public int GetUiVersion()
         {
             return ResetTrafficSystem.UiVersion;
@@ -233,10 +176,10 @@ namespace ResetTraffic
             RemoveMovingPublicTransport = true;
             RemoveMovingTrucks = true;
             RemoveMovingOther = true;
-            // Pedestrians respawn continuously; parked cars include depot/service fleets.
+            // Pedestrians respawn continuously. Parked trains/other stay off. Parked cars include depot/service fleets.
             RemovePedestrians = false;
-            RemoveParkedCars = false;
-            RemoveParkedBicycles = false;
+            RemoveParkedCars = true;
+            RemoveParkedBicycles = true;
             RemoveParkedTrains = false;
             RemoveParkedOther = false;
             EnableDebugging = false;

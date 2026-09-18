@@ -38,6 +38,16 @@ namespace ResetTraffic
             // Locale sources must be added before LoadSettings so the binding default (F9) is labeled.
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Settings));
             GameManager.instance.localizationManager.AddSource("de-DE", new LocaleDE(Settings));
+            GameManager.instance.localizationManager.AddSource("es-ES", new LocaleES(Settings));
+            GameManager.instance.localizationManager.AddSource("fr-FR", new LocaleFR(Settings));
+            GameManager.instance.localizationManager.AddSource("it-IT", new LocaleIT(Settings));
+            GameManager.instance.localizationManager.AddSource("ja-JP", new LocaleJA(Settings));
+            GameManager.instance.localizationManager.AddSource("ko-KR", new LocaleKO(Settings));
+            GameManager.instance.localizationManager.AddSource("pl-PL", new LocalePL(Settings));
+            GameManager.instance.localizationManager.AddSource("pt-BR", new LocalePT(Settings));
+            GameManager.instance.localizationManager.AddSource("ru-RU", new LocaleRU(Settings));
+            GameManager.instance.localizationManager.AddSource("zh-HANS", new LocaleZHHans(Settings));
+            GameManager.instance.localizationManager.AddSource("zh-HANT", new LocaleZHHant(Settings));
             AssetDatabase.global.LoadSettings(nameof(ResetTraffic), Settings, new Setting(this));
 
             // ToolUpdate: same phase as other tool deletes, paired with ToolOutputBarrier in the system.

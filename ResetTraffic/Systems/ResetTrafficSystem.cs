@@ -1,13 +1,17 @@
 namespace ResetTraffic
 {
+    using System;
     using Game;
     using Game.Common;
     using Game.Creatures;
     using Game.Input;
     using Game.Objects;
     using Game.Rendering;
+    using Game.SceneFlow;
     using Game.Simulation;
     using Game.Tools;
+    using Game.UI;
+    using Game.UI.Localization;
     using Game.Vehicles;
     using Unity.Collections;
     using Unity.Entities;
@@ -33,6 +37,9 @@ namespace ResetTraffic
     {
         // Info-log cadence during a run. Verbose [DEBUG] lines are gated separately by EnableDebugging.
         private const int LogEvery = 256;
+        internal const string FinishDialogTitleId = "ResetTraffic.FinishDialog.Title";
+        internal const string FinishDialogOkId = "ResetTraffic.FinishDialog.Ok";
+        internal const string FinishDialogCountsId = "ResetTraffic.FinishDialog.Counts";
 
         private EntityQuery m_MovingCars;
         private EntityQuery m_MovingBicycles;
@@ -63,19 +70,60 @@ namespace ResetTraffic
         private int m_DebugSkipNull;
         private int m_DebugSkipMissing;
         private int m_DebugSkipDeleted;
+        // True once OnDestroy starts so Finish cannot show a false-complete popup during teardown.
+        private bool m_Disposing;
 
         internal static bool IsActive { get; private set; }
 
-        // Options reads this via SettingsUIValueVersion so Idle/Running/counts refresh.
+        // Options reads this via SettingsUIValueVersion so the Status line rebinds.
         internal static int UiVersion { get; private set; }
-
-        internal static string ProgressText { get; private set; } = "No reset yet this session.";
 
         internal static int RemainingCount { get; private set; }
 
         internal static int SnapshotTotal { get; private set; }
 
         internal static int RemovedCount { get; private set; }
+
+        private static string StatusHeadline { get; set; }
+
+        internal static string FormatStatus()
+        {
+            bool de = UseGerman();
+            string counts = de
+                ? $"Übrig {RemainingCount}  ·  Entfernt {RemovedCount}  ·  Startliste {SnapshotTotal}"
+                : $"Remaining {RemainingCount}  ·  Removed {RemovedCount}  ·  Snapshot {SnapshotTotal}";
+
+            if (!IsActive)
+            {
+                if (string.IsNullOrEmpty(StatusHeadline) && SnapshotTotal <= 0 && RemovedCount <= 0)
+                {
+                    return de ? "Inaktiv. Noch kein Reset in dieser Sitzung." : "Idle. No reset yet this session.";
+                }
+
+                if (!string.IsNullOrEmpty(StatusHeadline))
+                {
+                    return de
+                        ? $"Inaktiv. {StatusHeadline} {counts}"
+                        : $"Idle. {StatusHeadline} {counts}";
+                }
+            }
+
+            string head = StatusHeadline;
+            if (string.IsNullOrEmpty(head))
+            {
+                head = de ? "Läuft." : "Running.";
+            }
+
+            return $"{head} {counts}";
+        }
+
+        private static bool UseGerman()
+        {
+            GameManager gameManager = GameManager.instance;
+            return gameManager != null
+                && gameManager.localizationManager != null
+                && gameManager.localizationManager.activeLocaleId == "de-DE";
+        }
 
         /// <summary>
         /// Queue a reset. Shared by the Options button and the hotkey. Safe to call before the
@@ -125,7 +173,9 @@ namespace ResetTraffic
             }
 
             IsActive = true;
-            PublishState("Queued. Close Options, then set speed to 1.", 0, 0, 0);
+            PublishState(UseGerman()
+                ? "Warteschlange. Optionen schließen, dann Geschwindigkeit auf 1."
+                : "Queued. Close Options, then set speed to 1.", 0, 0, 0);
             Mod.Instance?.Logger?.Info("Reset queued. Close Options, then set game speed to 1.");
             DebugLog($"RequestReset accepted. types={DescribeTypes(settings)} perFrame={settings?.ClampedVehiclesPerFrame()} interval={settings?.ClampedFrameInterval()}");
         }
@@ -237,6 +287,8 @@ namespace ResetTraffic
 
         protected override void OnDestroy()
         {
+            // Do not Finish() here: leaving the city is not a completed run.
+            m_Disposing = true;
             // Persistent NativeList must be disposed with the system.
             if (m_Snapshot.IsCreated)
             {
@@ -273,7 +325,7 @@ namespace ResetTraffic
                 if (!m_LoggedWait)
                 {
                     m_LoggedWait = true;
-                    PublishState("Waiting for speed 1.", RemainingCount, SnapshotTotal, RemovedCount);
+                    PublishState(UseGerman() ? "Warte auf Geschwindigkeit 1." : "Waiting for speed 1.", RemainingCount, SnapshotTotal, RemovedCount);
                     Mod.Instance?.Logger?.Info("Waiting for game speed > 0. Close Options and unpause to start.");
                 }
 
@@ -285,7 +337,7 @@ namespace ResetTraffic
             if (settings == null || !settings.HasAnythingSelected())
             {
                 DebugLog("OnUpdate abort: no types enabled.");
-                Finish("Skipped vehicle reset: no types enabled.", warn: true);
+                Finish(UseGerman() ? "Übersprungen: keine Typen angehakt." : "Skipped vehicle reset: no types enabled.", warn: true);
                 return;
             }
 
@@ -298,11 +350,13 @@ namespace ResetTraffic
                 if (m_Snapshot.Length == 0)
                 {
                     DebugLog("Snapshot empty after BuildSnapshot.");
-                    Finish("Reset complete: nothing matched the checked types.");
+                    Finish(UseGerman() ? "Reset fertig: nichts hat zu den angehakten Typen gepasst." : "Reset complete: nothing matched the checked types.");
                     return;
                 }
 
-                PublishState($"Snapshot {m_Snapshot.Length}. Removing listed entities only.", m_Snapshot.Length, m_Snapshot.Length, 0);
+                PublishState(UseGerman()
+                    ? $"Startliste {m_Snapshot.Length}. Nur diese Objekte werden entfernt."
+                    : $"Snapshot {m_Snapshot.Length}. Removing listed entities only.", m_Snapshot.Length, m_Snapshot.Length, 0);
                 Mod.Instance?.Logger?.Info($"Snapshot {m_Snapshot.Length} entities. Vehicles that spawn after this are left alone.");
                 DebugLog($"Snapshot ready length={m_Snapshot.Length} IsActive={IsActive} UiVersion={UiVersion}");
             }
@@ -328,13 +382,15 @@ namespace ResetTraffic
             int tagged = TagSnapshotBatch(commandBuffer, perFrame, settings.EnableDebugging);
             m_SessionCount += tagged;
             int stillLeft = m_Snapshot.Length - m_SnapshotIndex;
-            PublishState($"Running: {m_SessionCount} removed, {stillLeft} left in snapshot.", stillLeft, m_Snapshot.Length, m_SessionCount);
+            PublishState(UseGerman()
+                ? $"Läuft: {m_SessionCount} entfernt, {stillLeft} übrig."
+                : $"Running: {m_SessionCount} removed, {stillLeft} left.", stillLeft, m_Snapshot.Length, m_SessionCount);
             DebugLog($"batch frame={frame} speed={speed} tagged={tagged} session={m_SessionCount} index={m_SnapshotIndex}/{m_Snapshot.Length} left={stillLeft} skipNull={m_DebugSkipNull} skipMissing={m_DebugSkipMissing} skipDeleted={m_DebugSkipDeleted} IsActive={IsActive} UiVersion={UiVersion}");
 
             if (stillLeft <= 0)
             {
                 DebugLog($"Finish condition met. taggedThisSession={m_SessionCount} snapshotLength={m_Snapshot.Length}");
-                Finish($"Reset complete: {m_SessionCount} entities.");
+                Finish(UseGerman() ? $"Reset fertig: {m_SessionCount} Objekte." : $"Reset complete: {m_SessionCount} entities.");
                 return;
             }
 
@@ -488,13 +544,69 @@ namespace ResetTraffic
 
             IsActive = false;
             PublishState(message, 0, snapshot, removed);
-            DebugLog($"Finish end: IsActive={IsActive} UiVersion={UiVersion} ProgressText='{ProgressText}'");
+            ShowCompletionPopup(message, 0, snapshot, removed);
+            DebugLog($"Finish end: IsActive={IsActive} UiVersion={UiVersion} status='{FormatStatus()}'");
+        }
+
+        // Official CS2 modal (Game.UI.MessageDialog). Not the error HUD — SetShowsErrorsInUI stays false.
+        private void ShowCompletionPopup(string message, int remaining, int snapshot, int removed)
+        {
+            if (m_Disposing)
+            {
+                DebugLog("Finish popup skipped: disposing.");
+                return;
+            }
+
+            GameManager gameManager = GameManager.instance;
+            AppBindings appBindings = gameManager?.userInterface?.appBindings;
+            if (appBindings == null)
+            {
+                DebugLog("Finish popup skipped: UI not ready.");
+                return;
+            }
+
+            string countsTemplate = TryLocalize(
+                FinishDialogCountsId,
+                UseGerman()
+                    ? "Übrig {REMAINING}  ·  Entfernt {REMOVED}  ·  Startliste {SNAPSHOT}"
+                    : "Remaining {REMAINING}  ·  Removed {REMOVED}  ·  Snapshot {SNAPSHOT}");
+            string counts = countsTemplate
+                .Replace("{REMAINING}", remaining.ToString())
+                .Replace("{REMOVED}", removed.ToString())
+                .Replace("{SNAPSHOT}", snapshot.ToString());
+            string body = string.IsNullOrEmpty(message) ? counts : message + "\n" + counts;
+
+            try
+            {
+                MessageDialog dialog = new MessageDialog(
+                    LocalizedString.IdWithFallback(FinishDialogTitleId, "Reset Traffic"),
+                    LocalizedString.Value(body),
+                    LocalizedString.IdWithFallback(FinishDialogOkId, "OK"));
+                appBindings.ShowMessageDialog(dialog, _ => { });
+            }
+            catch (Exception exception)
+            {
+                Mod.Instance?.Logger?.Warn("Finish popup failed: " + exception.Message);
+            }
+        }
+
+        private static string TryLocalize(string id, string fallback)
+        {
+            GameManager gameManager = GameManager.instance;
+            if (gameManager?.localizationManager?.activeDictionary != null
+                && gameManager.localizationManager.activeDictionary.TryGetValue(id, out string value)
+                && !string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            return fallback;
         }
 
         // Static so Options can read progress without a system instance. BumpUi invalidates dummy rows.
         private static void PublishState(string text, int remaining, int snapshot, int removed)
         {
-            ProgressText = text;
+            StatusHeadline = text;
             RemainingCount = remaining;
             SnapshotTotal = snapshot;
             RemovedCount = removed;
