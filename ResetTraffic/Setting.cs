@@ -16,8 +16,8 @@ namespace ResetTraffic
     // Saved as Mods_ResetTraffic.coc under the game's ModsSettings folder.
     [FileLocation("Mods_ResetTraffic")]
     [SettingsUIPageWarning(typeof(Setting), nameof(IsRunning))]
-    [SettingsUIGroupOrder(kActionGroup, kMovingGroup, kParkedGroup, kPaceGroup, kKeybindingGroup, kDebugGroup)]
-    [SettingsUIShowGroupName(kActionGroup, kMovingGroup, kParkedGroup, kPaceGroup, kKeybindingGroup, kDebugGroup)]
+    [SettingsUIGroupOrder(kActionGroup, kMovingGroup, kParkedGroup, kPaceGroup, kKeybindingGroup, kDebugGroup, kDefaultsGroup)]
+    [SettingsUIShowGroupName(kActionGroup, kMovingGroup, kParkedGroup, kPaceGroup, kKeybindingGroup, kDebugGroup, kDefaultsGroup)]
     public class Setting : ModSetting
     {
         public const string kSection = "Main";
@@ -27,8 +27,9 @@ namespace ResetTraffic
         public const string kPaceGroup = "Pace";
         public const string kKeybindingGroup = "KeyBinding";
         public const string kDebugGroup = "Debug";
+        public const string kDefaultsGroup = "Defaults";
 
-        public const int DefaultVehiclesPerFrame = 16;
+        public const int DefaultVehiclesPerFrame = 20;
         public const int DefaultFrameInterval = 0;
         public const int MinVehiclesPerFrame = 1;
         public const int MaxVehiclesPerFrame = 64;
@@ -181,6 +182,29 @@ namespace ResetTraffic
         [SettingsUISection(kSection, kDebugGroup)]
         [SettingsUISetter(typeof(Setting), nameof(OnDebuggingChanged))]
         public bool EnableDebugging { get; set; }
+
+        /// <summary>
+        /// Options button. Restores filters, pace sliders, and debugging.
+        /// Does not change the hotkey or queue a traffic reset.
+        /// </summary>
+        [SettingsUISection(kSection, kDefaultsGroup)]
+        [SettingsUIButton]
+        [SettingsUIConfirmation]
+        public bool ResetModSettings
+        {
+            set
+            {
+                bool wasDebugging = EnableDebugging;
+                SetDefaults();
+                ApplyAndSave();
+                if (wasDebugging)
+                {
+                    OnDebuggingChanged(false);
+                }
+
+                Mod.Instance?.Logger?.Info("Options restored to defaults.");
+            }
+        }
 
         public bool IsNotInGame => !IsInGame();
 

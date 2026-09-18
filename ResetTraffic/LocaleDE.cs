@@ -42,6 +42,7 @@ namespace ResetTraffic
                 { m_Setting.GetOptionGroupLocaleID(Setting.kPaceGroup), "Tempo" },
                 { m_Setting.GetOptionGroupLocaleID(Setting.kKeybindingGroup), "Tastenkürzel" },
                 { m_Setting.GetOptionGroupLocaleID(Setting.kDebugGroup), "Debug" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.kDefaultsGroup), "Standardwerte" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveMovingCars)), "Autos" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveMovingCars)), "Private Autos, die gerade fahren." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveMovingBicycles)), "Fahrräder" },
@@ -76,6 +77,9 @@ namespace ResetTraffic
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetBindings)), "Setzt das Tastenkürzel wieder auf F9." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.EnableDebugging)), "Debugging" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.EnableDebugging)), "Ausführliche Reset-Logs in Mods_ResetTraffic.log. Bremst das Spiel, solange an. Für normale Geschwindigkeit aus." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetModSettings)), "Auf Standardwerte zurücksetzen" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetModSettings)), "Setzt Typfilter, Tempo-Slider und Debugging auf die Originalwerte. Ändert das Tastenkürzel nicht und entfernt keinen Verkehr." },
+                { m_Setting.GetOptionWarningLocaleID(nameof(Setting.ResetModSettings)), "Typfilter, Tempo-Slider und Debugging auf die Standardwerte zurücksetzen? Das Tastenkürzel bleibt, es wird kein Verkehr entfernt." },
             };
         }
 

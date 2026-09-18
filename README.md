@@ -1,6 +1,6 @@
 # Reset Traffic
 
-**Alpha** (`1.0.0-alpha`). A Cities: Skylines II mod with one Options button that removes **moving** vehicles so traffic can respawn from demand.
+**Alpha** (`1.1.0-alpha`). A Cities: Skylines II mod with one Options button that removes **moving** vehicles so traffic can respawn from demand.
 
 Official `IMod` (no Harmony, no BepInEx). MIT licensed. Source: [github.com/mafra-code/cs2-reset-traffic](https://github.com/mafra-code/cs2-reset-traffic).
 
@@ -12,7 +12,7 @@ Official `IMod` (no Harmony, no BepInEx). MIT licensed. Source: [github.com/mafr
 
 The Options page shows **Idle** or **Running**, plus **Remaining** / **Removed** / **Snapshot** counts. **Debugging** writes verbose lines to `Mods_ResetTraffic.log` and will hitch; leave it off unless you need those logs.
 
-You can also use a **hotkey** (default **F9**). **Entities per frame** (1–64, default 16) and **Extra frames between batches** (0–30, default 0) control how fast things disappear.
+You can also use a **hotkey** (default **F9**). **Entities per frame** (1–64, default 20) and **Extra frames between batches** (0–30, default 0) control how fast things disappear.
 
 **Moving vehicles and pedestrians:** cars, bicycles, trains, public transport, trucks/service, aircraft/watercraft (on by default), pedestrians (off).
 

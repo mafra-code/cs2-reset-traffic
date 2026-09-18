@@ -42,6 +42,7 @@ namespace ResetTraffic
                 { m_Setting.GetOptionGroupLocaleID(Setting.kPaceGroup), "Pace" },
                 { m_Setting.GetOptionGroupLocaleID(Setting.kKeybindingGroup), "Hotkey" },
                 { m_Setting.GetOptionGroupLocaleID(Setting.kDebugGroup), "Debug" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.kDefaultsGroup), "Defaults" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveMovingCars)), "Cars" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveMovingCars)), "Personal cars currently driving." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveMovingBicycles)), "Bicycles" },
@@ -76,6 +77,9 @@ namespace ResetTraffic
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetBindings)), "Restore the reset hotkey to F9." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.EnableDebugging)), "Debugging" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.EnableDebugging)), "Verbose reset logs in Mods_ResetTraffic.log. Slows the game while on. Turn off for normal speed." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ResetModSettings)), "Reset to defaults" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ResetModSettings)), "Restore type filters, pace sliders, and debugging to their original values. Does not change the hotkey or despawn traffic." },
+                { m_Setting.GetOptionWarningLocaleID(nameof(Setting.ResetModSettings)), "Restore type filters, pace sliders, and debugging to their default values? This does not change the hotkey or despawn traffic." },
             };
         }
 
